@@ -164,7 +164,7 @@ class ASCOMTelescope (TelescopeBase):
                 position_now = self._getFinalPosition(position)
 
                 self.slewBegin(position_now)
-                self._ascom.SlewToCoordinatesAsync(position_now.ra.H, position_now.dec.D)
+                self._ascom.SlewToCoordinatesAsync(position_now.ra.D, position_now.dec.D)
 
                 status = TelescopeStatus.OK
 
