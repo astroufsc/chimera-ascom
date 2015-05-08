@@ -108,17 +108,19 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def close(self):
-        try:
-            # self._ascom.Disconnect()
-            # self._ascom.DisconnectTelescope()
-            # self._ascom.Disconnect()
-            self._ascom.Quit()
-        except com_error:
-            self.log.error("Couldn't disconnect to ASCOM.")
-            return False
+        return True
+        # try:
+        #     # self._ascom.Disconnect()
+        #     # self._ascom.DisconnectTelescope()
+        #     # self._ascom.Disconnect()
+        #     self._ascom.Quit()
+        # except com_error:
+        #     self.log.error("Couldn't disconnect to ASCOM.")
+        #     return False
+
     @com
     def getRa(self):
-        return Coord.fromD(self._ascom.RightAscension)
+        return Coord.fromH(self._ascom.RightAscension)
 
     @com
     def getDec(self):
@@ -136,12 +138,11 @@ class ASCOMTelescope (TelescopeBase):
     @com
     def getPositionRaDec(self):
         return Position.fromRaDec(
-            Coord.fromD(self._ascom.RightAscension), Coord.fromD(self._ascom.Declination))
+            self._ascom.RightAscension, self._ascom.Declination)
 
     @com
     def getPositionAltAz(self):
-        return Position.fromAltAz(
-            Coord.fromD(self._ascom.Altitude), Coord.fromD(self._ascom.Azimuth))
+        return Position.fromAltAz(self._ascom.Altitude, self._ascom.Azimuth)
 
     @com
     def getTargetRaDec(self):
@@ -153,37 +154,43 @@ class ASCOMTelescope (TelescopeBase):
     def slewToRaDec(self, position):
 
         if self.isSlewing():
+            self.log.error('Telescope is Slewing. Slew aborted.')
             return False
 
         self._target = position
         self._abort.clear()
 
-        try:
-            if self._ascom.CanSlewAsync:
+        if self._ascom.CanSlew and not self._ascom.AtPark and self._ascom.Tracking:
 
-                position_now = self._getFinalPosition(position)
+            self.slewBegin(position)
+            self.log.info("Telescope %s slewing to ra %3.2f and dec %3.2f" % (self['telescope_id'], position.ra.H, position.dec.D))
+            self._ascom.SlewToCoordinates(position.ra.H, position.dec.D)
 
-                self.slewBegin(position_now)
-                self._ascom.SlewToCoordinatesAsync(position_now.ra.D, position_now.dec.D)
+            status = TelescopeStatus.OK
 
-                status = TelescopeStatus.OK
+            while self._ascom.Slewing:
 
-                while not self._ascom.IsSlewComplete:
+                # [ABORT POINT]
+                if self._abort.isSet():
+                    status = TelescopeStatus.ABORTED
+                    break
 
-                    # [ABORT POINT]
-                    if self._abort.isSet():
-                        status = TelescopeStatus.ABORTED
-                        break
+                time.sleep(self._idle_time)
 
-                    time.sleep(self._idle_time)
+            self.slewComplete(self.getPositionRaDec(), status)
+            print 'Slew Complete'
+            self.log.info("Slew Complete.")
 
-                self.slewComplete(self.getPositionRaDec(), status)
+        else:
+            self.log.info("Can't slew.")
+            return False
 
-            # except com_error:
-            #     raise PositionOutsideLimitsException("Position outside limits.")
-        except:
-            print 'FIXME:'
-            NotImplementedError()
+        #
+        #     # except com_error:
+        #     #     raise PositionOutsideLimitsException("Position outside limits.")
+        # except:
+        #     print 'FIXME:'
+        #     NotImplementedError()
 
         return True
 
@@ -227,7 +234,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def isSlewing(self):
-        return self._ascom.Slewing == 0
+        return self._ascom.Slewing
 
     @com
     def isTracking(self):
@@ -235,12 +242,14 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def park(self):
+        self.stopTracking()
         self._ascom.Park()
 
     @com
     def unpark(self):
-        self._ascom.Unpark()
-        self._ascom.FindHome()
+        if self._ascom.AtPark:  # Is parked?
+            self._ascom.Unpark()
+            self._ascom.FindHome()
         self.startTracking()
 
     @com
@@ -251,11 +260,15 @@ class ASCOMTelescope (TelescopeBase):
     def startTracking(self):
         if self._ascom.CanSetTracking:
             self._ascom.Tracking = True
+        else:
+            return False
 
     @com
     def stopTracking(self):
         if self._ascom.CanSetTracking:
             self._ascom.Tracking = False
+        else:
+            return False
 
     # @com
     # def moveEast(self, offset, slewRate=None):
