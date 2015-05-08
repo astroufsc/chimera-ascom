@@ -118,7 +118,7 @@ class ASCOMTelescope (TelescopeBase):
             return False
     @com
     def getRa(self):
-        return Coord.fromH(self._ascom.RightAscension)
+        return Coord.fromD(self._ascom.RightAscension)
 
     @com
     def getDec(self):
@@ -136,7 +136,7 @@ class ASCOMTelescope (TelescopeBase):
     @com
     def getPositionRaDec(self):
         return Position.fromRaDec(
-            Coord.fromH(self._ascom.RightAscension), Coord.fromD(self._ascom.Declination))
+            Coord.fromD(self._ascom.RightAscension), Coord.fromD(self._ascom.Declination))
 
     @com
     def getPositionAltAz(self):
@@ -239,6 +239,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def unpark(self):
+        self._ascom.Unpark()
         self._ascom.FindHome()
         self.startTracking()
 
