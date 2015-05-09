@@ -95,7 +95,7 @@ class ASCOMTelescope (TelescopeBase):
             self._ascom.Connected = True
         except com_error:
             self.log.error(
-                "Couldn't instantiate ASCOM %d COM objects." % self["telescope_id"])
+                "Couldn't instantiate ASCOM %d COM objects." % self["ascom_id"])
             return False
 
         return self.unpark()
@@ -157,7 +157,7 @@ class ASCOMTelescope (TelescopeBase):
         if self._ascom.CanSlew and not self._ascom.AtPark and self._ascom.Tracking:
 
             self.slewBegin(position)
-            self.log.info("Telescope %s slewing to ra %3.2f and dec %3.2f" % (self['telescope_id'], position.ra.H, position.dec.D))
+            self.log.info("Telescope %s slewing to ra %3.2f and dec %3.2f" % (self['ascom_id'], position.ra.H, position.dec.D))
             self._ascom.SlewToCoordinates(position.ra.H, position.dec.D)
 
             status = TelescopeStatus.OK

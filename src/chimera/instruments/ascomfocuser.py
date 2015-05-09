@@ -18,22 +18,19 @@ else:
 
 
 class ASCOMFocuser(FocuserBase):
-    __config__ = {"ascom_id": 'CACA FIXME'}  # FIXME
-
+    __config__ = {"ascom_id": 'FocusSim.Focuser'}
 
     def __init__(self):
         FocuserBase.__init__(self)
 
+    def __start__(self):
+        self.open()
         self._position = self.getPosition()
+        self["focuser_model"] = 'ASCOM standard focuser id %s' % self['ascom_id']
 
         self._supports = {FocuserFeature.TEMPERATURE_COMPENSATION: self._ascom.TempCompAvailable,
                           FocuserFeature.POSITION_FEEDBACK: True,  # TODO: Check FEEDBACK
                           FocuserFeature.ENCODER: self._ascom.Absolute}
-
-    def __start__(self):
-        self.open()
-        self._position = self.getPosition()
-        self["focuser_model"] = self._ascom.Description
 
     @lock
     def moveIn(self, n):
@@ -69,10 +66,10 @@ class ASCOMFocuser(FocuserBase):
 
     def _setPosition(self, n):
         self.log.info("Changing focuser to %s" % n)
-        self._position = n
-        self._ascom
+        self._ascom.Move(n)
         while self._ascom.IsMoving:
-            pass   # FIXME: Add a timeout?
+            pass  # FIXME: Add a timeout? Add an ABORT?!
+        self._position = self._ascom.Position
 
     def _inRange(self, n):
         min_pos, max_pos = self.getRange()
@@ -81,7 +78,7 @@ class ASCOMFocuser(FocuserBase):
     def open(self):
         try:
             self._ascom = Dispatch(self['ascom_id'])
-            self._ascom.Connected = True
+            self._ascom.Link = True
         except com_error:
             self.log.error(
                 "Couldn't instantiate ASCOM %d COM objects." % self["telescope_id"])
