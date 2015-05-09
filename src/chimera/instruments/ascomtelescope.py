@@ -154,6 +154,13 @@ class ASCOMTelescope (TelescopeBase):
         self._target = position
         self._abort.clear()
 
+        if not self._ascom.CanSlew:
+            raise ChimeraException('Cannot Slew: Telescope does not slew.')
+        elif self._ascom.AtPark:
+            raise ChimeraException('Cannot Slew: Telescope is Parked')
+        elif not self._ascom.Tracking:
+            raise ChimeraException('Cannot Slew: Telescope is Not Tracking')
+
         if self._ascom.CanSlew and not self._ascom.AtPark and self._ascom.Tracking:
 
             self.slewBegin(position)
@@ -188,33 +195,76 @@ class ASCOMTelescope (TelescopeBase):
 
         return True
 
-#    @com
-#    def slewToAltAz (self, position):
-#
-#        if self.isSlewing ():
-#            return False
-#
-# self._target = position
-#        self._term.clear ()
-#
-#        try:
-#            self._ascom.Asynchronous = 1
-#            self.slewBegin((position.ra, position.dec))
-#            self._ascom.SlewToAltAz (position.alt.D, position.az.D, "chimera")
-#
-#            while not self._ascom.IsSlewComplete:
-#
-#                if self._term.isSet ():
-#                    return True
-#
-#                time.sleep (self._idle_time)
-#
-#            self.slewComplete(self.getPositionRaDec())
-#
-#        except com_error:
-#            raise PositionOutsideLimitsException("Position outside limits.")
-#
-#        return True
+    @com
+    def slewToAltAz(self, position):
+
+        if self.isSlewing():
+            self.log.error('Telescope is Slewing. Slew aborted.')
+            return False
+
+        self._target = position
+        self._abort.clear()
+
+        if not self._ascom.CanSlew:
+            m = 'Cannot Slew: Telescope does not have slew capability'
+            self.log.error(m)
+            raise ChimeraException(m)
+        elif self._ascom.AtPark:
+            m = 'Cannot Slew: Telescope is Parked'
+            self.log.error(m)
+            raise ChimeraException(m)
+        elif self._ascom.Tracking:
+            m = 'Cannot Slew: Telescope is Tracking'
+            self.log.error(m)
+            raise ChimeraException(m)
+
+        self.slewBegin(position)
+        self.log.info("Telescope %s slewing to alt %3.2f and az %3.2f" % (self['ascom_id'], position.alt.D, position.az.D))
+        self._ascom.SlewToAltAz(position.alt.D, position.az.D)
+
+        status = TelescopeStatus.OK
+
+        while self._ascom.Slewing:
+
+            # [ABORT POINT]
+            if self._abort.isSet():
+                status = TelescopeStatus.ABORTED
+                break
+
+            time.sleep(self._idle_time)
+
+        self.slewComplete(self.getPositionRaDec(), status)
+        print 'Slew Complete'
+        self.log.info("Slew Complete.")
+
+        #
+        #     # except com_error:
+        #     #     raise PositionOutsideLimitsException("Position outside limits.")
+        # except:
+        #     print 'FIXME:'
+        #     NotImplementedError()
+
+        return True
+
+        # if self.isSlewing():
+        #     return False
+        #
+        # self._target = position
+        #
+        # # try:
+        # self._ascom.Asynchronous = 1
+        # self.slewBegin((position.ra, position.dec))
+        # self._ascom.SlewToAltAz(position.alt.D, position.az.D)
+        #
+        # while not self._ascom.IsSlewComplete:
+        #     time.sleep(self._idle_time)
+        #
+        # self.slewComplete(self.getPositionRaDec())
+        #
+        # # except com_error:
+        # #     raise PositionOutsideLimitsException("Position outside limits.")
+        #
+        # return True
 
     @com
     def abortSlew(self):
