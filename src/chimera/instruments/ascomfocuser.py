@@ -27,6 +27,7 @@ class ASCOMFocuser(FocuserBase):
         self.open()
         self._position = self.getPosition()
         self["focuser_model"] = 'ASCOM standard focuser id %s' % self['ascom_id']
+        self["model"] = self["focuser_model"]
 
         self._supports = {FocuserFeature.TEMPERATURE_COMPENSATION: self._ascom.TempCompAvailable,
                           FocuserFeature.POSITION_FEEDBACK: True,  # TODO: Check FEEDBACK
