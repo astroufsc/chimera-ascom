@@ -293,7 +293,10 @@ class ASCOMTelescope (TelescopeBase):
     def unpark(self):
         if self._ascom.AtPark:  # Is parked?
             self._ascom.Unpark()
-            self._ascom.FindHome()
+            try:
+                self._ascom.FindHome()
+            except:
+                log.info('Telescope %s does not have FindHome implemented. Skipping...' % self['ascom_id'])
         self.startTracking()
 
     @com
