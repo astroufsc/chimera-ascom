@@ -38,18 +38,13 @@ from chimera.interfaces.telescope import PositionOutsideLimitsException, Telesco
 log = logging.getLogger(__name__)
 
 if sys.platform == "win32":
-    # handle COM multithread support
-    # see: Python Programming On Win32, Mark Hammond and Andy Robinson, Appendix D
-    #      http://support.microsoft.com/kb/q150777/
-    sys.coinit_flags = 0  # pythoncom.COINIT_MULTITHREAD
-    #import pythoncom
+    sys.coinit_flags = 0  # TODO: check why this?
 
     from win32com.client import Dispatch
     from pywintypes import com_error
 
 else:
-    log.warning("Not on win32. ASCOM  Telescope will not work.")
-    #raise ChimeraException("Not on win32. ASCOM Telescope will not work.")
+    log.warning("Not on Windows. ASCOM Telescope will not work.")
 
 
 def com(func):
@@ -69,7 +64,7 @@ def com(func):
 
 class ASCOMTelescope (TelescopeBase):
 
-    __config__ = {"telescope_id": "ScopeSim.Telescope"}
+    __config__ = {"ascom_id": "ScopeSim.Telescope"}
 
     def __init__(self):
         TelescopeBase.__init__(self)
@@ -95,9 +90,8 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def open(self):
-
         try:
-            self._ascom = Dispatch(self['telescope_id'])
+            self._ascom = Dispatch(self['ascom_id'])
             self._ascom.Connected = True
         except com_error:
             self.log.error(
