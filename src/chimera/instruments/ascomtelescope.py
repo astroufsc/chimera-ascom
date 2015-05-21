@@ -75,6 +75,8 @@ class ASCOMTelescope (TelescopeBase):
         self._ascom = None
         self._idle_time = 0.2
         self._target = None
+        self._isFanning = None
+        self._isOpen = None
 
     @com
     def __start__(self):
@@ -316,6 +318,56 @@ class ASCOMTelescope (TelescopeBase):
             self._ascom.Tracking = False
         else:
             return False
+
+    def isFanning(self):
+        return self._isFanning
+
+    @com
+    def startFan(self):
+        if self['ascom_id'] in ['AstrooptikServer.Telescope']:
+            if self.isFanning():
+                return True
+            self._ascom.Action('Telescope:StartFans')
+            self.log.debug('Starting telescope fans...')
+            return True
+        else:
+            raise NotImplementedError()
+
+    @com
+    def stopFan(self):
+        if self['ascom_id'] in ['AstrooptikServer.Telescope']:
+            if not self.isFanning():
+                return True
+            self.log.debug('Stopping telescope fans...')
+            self._ascom.Action('Telescope:StopFans')
+            return True
+        else:
+            raise NotImplementedError()
+
+    def isOpen(self):
+        return self._isOpen
+
+    @com
+    def openCover(self):
+        if self['ascom_id'] in ['AstrooptikServer.Telescope']:
+            if self.isOpen():
+                return True
+            self.log.debug('Opening telescope cover...')
+            self._ascom.Action('Telescope:OpenCover')
+            return True
+        else:
+            raise NotImplementedError()
+
+    @com
+    def closeCover(self):
+        if self['ascom_id'] in ['AstrooptikServer.Telescope']:
+            if not self.isOpen():
+                return True
+            self.log.debug('Closing telescope cover...')
+            self._ascom.Action('Telescope:CloseCover')
+            return True
+        else:
+            raise NotImplementedError()
 
     # @com
     # def moveEast(self, offset, slewRate=None):
