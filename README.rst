@@ -14,3 +14,40 @@ controllers must follow the standard `chimera_(plugin_name)/(instruments|control
 The class inside `(plugin).py` should be named Plugin (with CamelCase letters).
 
 For more info: https://github.com/astroufsc/chimera/blob/master/docs/site/chimerafordevs.rst#chimera-objects
+
+
+Installation
+------------
+
+Installation instructions. Dependencies, etc...
+
+::
+
+   pip install -U chimera_template
+
+or
+
+::
+
+    pip install -U git+https://github.com/astroufsc/chimera_template.git
+
+
+Configuration Example
+---------------------
+
+Here goes an example of the configuration to be added on `chimera.config` file.
+
+::
+
+    instrument:
+        name: model
+        type: Example
+
+
+Tested Hardware (for instruments)
+---------------------------------
+
+This plugin was tested on these hardware:
+
+* Hardware example 1, model 2
+* Hardware example 2, model 3
