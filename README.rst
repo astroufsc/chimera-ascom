@@ -7,13 +7,13 @@ Usage
 -----
 
 Install chimera_ on your computer, and then, this package. Edit the configuration like the example below matching the
-`ascom_id` of your device to the id on the ASCOM manager. It current implements only telescope (`type: ASCOMTelescope`)
-and focuser (`type: ASCOMFocuser`).
+`ascom_id` of your device to the id on the ASCOM manager. It current implements only telescope (``type: ASCOMTelescope``)
+and focuser (``type: ASCOMFocuser``).
 
 Installation
 ------------
 
-Besides `chimera`, `chimera_ascom` depends of `win32com` and `pywintypes` Python modules. It runs only on *Windows*
+Besides chimera, ``chimera_ascom`` depends of ``win32com`` and ``pywintypes`` Python modules. It runs only on *Windows*
 operating systems.
 
 ::
