@@ -1,56 +1,74 @@
-chimera_template plugin
-=======================
+chimera_ascom plugin
+====================
 
-This is a template plugin for the chimera observatory control system
-https://github.com/astroufsc/chimera.
+This is a `chimera`_ plugin for ASCOM_ telescope control standard.
+
+.. _chimera: https://github.com/astroufsc/chimera
+
+.. _ASCOM: http://www.ascom-standards.org/
 
 Usage
 -----
 
-Rename chimera_template for your plugin name. It is important that the plugin
-name must start with chimera\_ to be found by chimera. Instruments and
-controllers must follow the standard ``chimera_(plugin_name)/(instruments|controllers)/(plugin).py``
+Install chimera_ on your computer, and then, this package. Edit the configuration like the example below matching the
+`ascom_id` of your device to the id on the ASCOM manager. It current implements only telescope (`type: ASCOMTelescope`)
+and focuser (`type: ASCOMFocuser`).
 
-The class inside ``(plugin).py`` should be named Plugin (with CamelCase letters).
-
-For more info: https://github.com/astroufsc/chimera/blob/master/docs/site/chimerafordevs.rst#chimera-objects
-
+.. _chimera: https://www.github.com/astroufsc/chimera/
 
 Installation
 ------------
 
-Installation instructions. Dependencies, etc...
+Besides `chimera`, `chimera_ascom` depends of `win32com` and `pywintypes` Python modules. It runs only on *Windows*
+operating systems.
 
 ::
 
-   pip install -U chimera_template
-
-or
-
-::
-
-    pip install -U git+https://github.com/astroufsc/chimera_template.git
+    pip install -U git+https://github.com/astroufsc/chimera_ascom.git
 
 
 Configuration Example
 ---------------------
 
-Here goes an example of the configuration to be added on ``chimera.config`` file.
+* ASCOM Simulator
 
 ::
 
-    instrument:
-        name: model
-        type: Example
+    telescope:
+        name: tel_sim
+        type: ASCOMTelescope
+        ascom_id: ScopeSim.Telescope
+
+    focuser:
+        name: foc_sim
+        type: ASCOMFocuser
+        ascom_id: FocusSim.Focuser
 
 
-Tested Hardware (for instruments)
----------------------------------
+* ASA DDM160 with M2 focuser
+
+::
+
+    telescope:
+        name: ASA_DDM160
+        type: ASCOMTelescope
+        ascom_id: AstrooptikServer.Telescope
+
+    focuser:
+        name: ASA_focuser
+        type: ASCOMFocuser
+        ascom_id: ACCServer.Focuser
+
+
+Tested Hardware
+---------------
 
 This plugin was tested on these hardware:
 
-* Hardware example 1, model 2
-* Hardware example 2, model 3
+* `Astrosysteme Austria`_ Telescope model `ASA DDM160`_ with M2 focuser.
+
+.. _Astrosysteme Austria: http://www.astrosysteme.at
+.. _ASA DDM160: http://www.astrosysteme.at/eng/mount_ddm160.html
 
 
 Contact
@@ -60,4 +78,4 @@ For more information, contact us on chimera's discussion list:
 https://groups.google.com/forum/#!forum/chimera-discuss
 
 Bug reports and patches are welcome and can be sent over our GitHub page:
-https://github.com/astroufsc/chimera_template/
+https://github.com/astroufsc/chimera_ascom/
