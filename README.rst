@@ -1,11 +1,7 @@
 chimera_ascom plugin
 ====================
 
-This is a `chimera`_ plugin for ASCOM_ telescope control standard.
-
-.. _chimera: https://github.com/astroufsc/chimera
-
-.. _ASCOM: http://www.ascom-standards.org/
+A chimera_ plugin for ASCOM_ telescope control standard.
 
 Usage
 -----
@@ -13,8 +9,6 @@ Usage
 Install chimera_ on your computer, and then, this package. Edit the configuration like the example below matching the
 `ascom_id` of your device to the id on the ASCOM manager. It current implements only telescope (`type: ASCOMTelescope`)
 and focuser (`type: ASCOMFocuser`).
-
-.. _chimera: https://www.github.com/astroufsc/chimera/
 
 Installation
 ------------
@@ -67,10 +61,6 @@ This plugin was tested on these hardware:
 
 * `Astrosysteme Austria`_ Telescope model `ASA DDM160`_ with M2 focuser.
 
-.. _Astrosysteme Austria: http://www.astrosysteme.at
-.. _ASA DDM160: http://www.astrosysteme.at/eng/mount_ddm160.html
-
-
 Contact
 -------
 
@@ -79,3 +69,9 @@ https://groups.google.com/forum/#!forum/chimera-discuss
 
 Bug reports and patches are welcome and can be sent over our GitHub page:
 https://github.com/astroufsc/chimera_ascom/
+
+
+.. _chimera: https://www.github.com/astroufsc/chimera/
+.. _Astrosysteme Austria: http://www.astrosysteme.at
+.. _ASA DDM160: http://www.astrosysteme.at/eng/mount_ddm160.html
+.. _ASCOM: http://www.ascom-standards.org/
