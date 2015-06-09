@@ -1,4 +1,4 @@
-chimera_ascom plugin
+chimera-ascom plugin
 ====================
 
 A chimera_ plugin for ASCOM_ telescope control standard.
@@ -7,18 +7,18 @@ Usage
 -----
 
 Install chimera_ on your computer, and then, this package. Edit the configuration like the example below matching the
-`ascom_id` of your device to the id on the ASCOM manager. It current implements only telescope (``type: ASCOMTelescope``)
+``ascom_id`` of your device to the id on the ASCOM manager. It current implements only telescope (``type: ASCOMTelescope``)
 and focuser (``type: ASCOMFocuser``).
 
 Installation
 ------------
 
-Besides chimera, ``chimera_ascom`` depends of ``win32com`` and ``pywintypes`` Python modules. It runs only on *Windows*
+Besides chimera, ``chimera-ascom`` depends of ``win32com`` and ``pywintypes`` Python modules. It runs only on *Windows*
 operating systems.
 
 ::
 
-    pip install -U git+https://github.com/astroufsc/chimera_ascom.git
+    pip install -U git+https://github.com/astroufsc/chimera-ascom.git
 
 
 Configuration Example
@@ -57,7 +57,7 @@ Configuration Example
 Tested Hardware
 ---------------
 
-This plugin was tested on these hardware:
+This plugin was tested on:
 
 * `Astrosysteme Austria`_ Telescope model `ASA DDM160`_ with M2 focuser.
 
@@ -68,7 +68,7 @@ For more information, contact us on chimera's discussion list:
 https://groups.google.com/forum/#!forum/chimera-discuss
 
 Bug reports and patches are welcome and can be sent over our GitHub page:
-https://github.com/astroufsc/chimera_ascom/
+https://github.com/astroufsc/chimera-ascom/
 
 
 .. _chimera: https://www.github.com/astroufsc/chimera/
