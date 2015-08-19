@@ -208,17 +208,11 @@ class ASCOMTelescope (TelescopeBase):
         self._abort.clear()
 
         if not self._ascom.CanSlew:
-            m = 'Cannot Slew: Telescope does not have slew capability'
-            self.log.error(m)
-            raise ChimeraException(m)
+            raise ChimeraException('Cannot Slew: Telescope does not slew.')
         elif self._ascom.AtPark:
-            m = 'Cannot Slew: Telescope is Parked'
-            self.log.error(m)
-            raise ChimeraException(m)
-        elif self._ascom.Tracking:
-            m = 'Cannot Slew: Telescope is Tracking'
-            self.log.error(m)
-            raise ChimeraException(m)
+            raise ChimeraException('Cannot Slew: Telescope is Parked')
+        elif not self._ascom.Tracking:
+            raise ChimeraException('Cannot Slew: Telescope is Not Tracking')
 
         self.slewBegin(position)
         self.log.info("Telescope %s slewing to alt %3.2f and az %3.2f" % (self['ascom_id'], position.alt.D, position.az.D))
