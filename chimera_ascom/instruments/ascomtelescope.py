@@ -215,7 +215,7 @@ class ASCOMTelescope (TelescopeBase):
 
         self.slewBegin(position)
         self.log.info("Telescope %s slewing to alt %3.2f and az %3.2f" % (self['ascom_id'], position.alt.D, position.az.D))
-        self._ascom.SlewToAltAz(position.alt.D, position.az.D)
+        self._ascom.SlewToAltAz(position.az.D, position.alt.D)
 
         status = TelescopeStatus.OK
 
@@ -386,7 +386,3 @@ class ASCOMTelescope (TelescopeBase):
     #     self._ascom.Jog(offset.AS / 60.0, 'South')
     #     self._ascom.Asynchronous = 1
     #
-    # @lock
-    # def syncRaDec(self, position):
-    #     self._ascom.Sync(position.ra.H, position.dec.D, "chimera")
-    #     self.syncComplete(position)
