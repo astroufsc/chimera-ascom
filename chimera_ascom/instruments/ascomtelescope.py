@@ -128,7 +128,6 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def getAlt(self):
-        self._ascom.GetAzAlt()
         return Coord.fromD(self._ascom.Altitude)
 
     @com
