@@ -7,8 +7,8 @@ Usage
 -----
 
 Install chimera_ on your computer, and then, this package. Edit the configuration like the example below matching the
-``ascom_id`` of your device to the id on the ASCOM manager. It current implements only telescope (``type: ASCOMTelescope``)
-and focuser (``type: ASCOMFocuser``).
+``ascom_id`` of your device to the id on the ASCOM manager. It current implements telescope (``type: ASCOMTelescope``),
+focuser (``type: ASCOMFocuser``), camera (``type: ASCOMCamera``) and filter wheel camera (``type: ASCOMFilterWheel``).
 
 Installation
 ------------
@@ -31,15 +31,25 @@ Configuration Example
     telescope:
         name: tel_sim
         type: ASCOMTelescope
-        ascom_id: ScopeSim.Telescope
+        ascom_id: ASCOM.Simulator.Telescope
 
     focuser:
         name: foc_sim
         type: ASCOMFocuser
         ascom_id: FocusSim.Focuser
 
+    camera:
+        name: cam_sim
+        type: ASCOMCamera
+        ascom_id: ASCOM.Simulator.Camera
 
-* ASA DDM160 with M2 focuser
+    filterwheel:
+        name: fwheel_sim
+        type: ASCOMFilterWheel
+        ascom_id: ASCOM.Simulator.FilterWheel
+
+
+* `ASA DDM160`_ with M2 focuser
 
 ::
 
@@ -53,6 +63,20 @@ Configuration Example
         type: ASCOMFocuser
         ascom_id: ACCServer.Focuser
 
+* `Apogee Alta U-16M`_ camera with `FW50-9R`_ filter wheel
+
+::
+
+    camera:
+        name: apogee
+        type: ASCOMCamera
+        ascom_id: ASCOM.Apogee.Camera
+
+    filterwheel:
+        name: apogee
+        type: ASCOMFilterWheel
+        ascom_id: ASCOM.Apogee.FilterWheel
+        filters: F1 F2 F3 F4 F5 F6 F7 F8 F9
 
 Tested Hardware
 ---------------
@@ -60,6 +84,8 @@ Tested Hardware
 This plugin was tested on:
 
 * `Astrosysteme Austria`_ Telescope model `ASA DDM160`_ with M2 focuser.
+
+* `Apogee Alta U-16M`_ camera with `FW50-9R`_ filter wheel
 
 Contact
 -------
@@ -75,3 +101,5 @@ https://github.com/astroufsc/chimera-ascom/
 .. _Astrosysteme Austria: http://www.astrosysteme.at
 .. _ASA DDM160: http://www.astrosysteme.at/eng/mount_ddm160.html
 .. _ASCOM: http://www.ascom-standards.org/
+.. _Apogee Alta U-16M: http://www.andor.com/scientific-cameras/apogee-camera-range/alta-ccd-series
+.. _FW50-9R: http://www.ccd.com/pdf/FW50.pdf

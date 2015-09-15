@@ -104,10 +104,8 @@ class ASCOMCamera(CameraBase):
                 readoutMode.gain = self._ascom.ElectronsPerADU
                 readoutMode.width = self["ccd_width"] / hbin
                 readoutMode.height = self["ccd_height"] / vbin
-                self.log.debug("mode: %d, %d, %d" % (readoutMode.mode, readoutMode.width, readoutMode.height))
                 readoutMode.pixelWidth = self._pixelWidth * hbin
                 readoutMode.pixelHeight = self._pixelHeight * vbin
-                self.log.debug("%s, %d, %d" % (binning, readoutMode.width, readoutMode.height))
                 self._readoutModes[self._MY_CCD].update({i_mode: readoutMode})
                 i_mode_tot += 1
 
@@ -179,16 +177,11 @@ class ASCOMCamera(CameraBase):
         self._ascom.BinY = hbin
 
         # Subframing
-        self.log.debug("Exposing: width %d, height %d" % (width, height))
-        self.log.debug(type(self._ascom.NumX))
         self._ascom.StartX = left
         self._ascom.StartY = top
 
         self._ascom.NumX = width
         self._ascom.NumY = height
-
-        self.log.debug("%d, %d" % (width, height))
-        self.log.debug("%d, %d" % (self._ascom.NumX, self._ascom.NumY))
 
         # Start Exposure...
         self._ascom.StartExposure(request["exptime"], light)
@@ -203,19 +196,6 @@ class ASCOMCamera(CameraBase):
                 break
 
         self.exposeComplete(request, status)
-
-        # t = 0
-        # self.__lastFrameStart = dt.datetime.utcnow()
-        # while t < request["exptime"]:
-        #     # [ABORT POINT]
-        #     if self.abort.isSet():
-        #         status = CameraStatus.ABORTED
-        #         break
-        #
-        #     time.sleep(0.1)
-        #     t += 0.1
-        #
-        # self.exposeComplete(imageRequest, status)
 
     def _readout(self, request):
         self.readoutBegin(request)
