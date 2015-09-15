@@ -6,7 +6,6 @@ from chimera.core.lock import lock
 from chimera.interfaces.focuser import FocuserFeature, InvalidFocusPositionException
 from chimera.instruments.focuser import FocuserBase
 
-
 log = logging.getLogger(__name__)
 
 if sys.platform == "win32":
