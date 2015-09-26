@@ -1,5 +1,4 @@
-
-#! /usr/bin/env python
+# ! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
 # chimera - observatory automation system
@@ -22,18 +21,14 @@
 
 import sys
 import threading
-import subprocess
 import logging
 import time
 
 from chimera.core.exceptions import ChimeraException
-from chimera.core.lock import lock
-
 from chimera.util.coord import Coord
-from chimera.util.position import Position
-
+from chimera.util.position import Position, Epoch
 from chimera.instruments.telescope import TelescopeBase
-from chimera.interfaces.telescope import PositionOutsideLimitsException, TelescopeStatus
+from chimera.interfaces.telescope import TelescopeStatus
 
 log = logging.getLogger(__name__)
 
@@ -52,6 +47,7 @@ def com(func):
     Wrapper decorator used to handle COM objects errors.
     Every method that use COM method should be decorated.
     """
+
     def com_wrapper(*args, **kwargs):
 
         try:
@@ -62,9 +58,8 @@ def com(func):
     return com_wrapper
 
 
-class ASCOMTelescope (TelescopeBase):
-
-    __config__ = {"ascom_id": "ScopeSim.Telescope"}
+class ASCOMTelescope(TelescopeBase):
+    __config__ = {"ascom_id": "ASCOM.Simulator.Telescope"}
 
     def __init__(self):
         TelescopeBase.__init__(self)
@@ -132,8 +127,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def getPositionRaDec(self):
-        return Position.fromRaDec(
-            self._ascom.RightAscension, self._ascom.Declination)
+        return Position.fromRaDec(self._ascom.RightAscension, self._ascom.Declination)
 
     @com
     def getPositionAltAz(self):
@@ -165,7 +159,11 @@ class ASCOMTelescope (TelescopeBase):
         if self._ascom.CanSlew and not self._ascom.AtPark and self._ascom.Tracking:
 
             self.slewBegin(position)
-            self.log.info("Telescope %s slewing to ra %3.2f and dec %3.2f" % (self['ascom_id'], position.ra.H, position.dec.D))
+
+            # At least for ASA telescopes, (ra, dec) should be in NOW epoch, not J2000.
+            position = position.toEpoch(Epoch.NOW)
+            self.log.info("Telescope %s slewing to ra %3.2f and dec %3.2f" % (self['ascom_id'],
+                                                                              position.ra.H, position.dec.D))
             self._ascom.SlewToCoordinates(position.ra.H, position.dec.D)
 
             status = TelescopeStatus.OK
@@ -210,8 +208,8 @@ class ASCOMTelescope (TelescopeBase):
             raise ChimeraException('Cannot Slew: Telescope does not slew.')
         elif self._ascom.AtPark:
             raise ChimeraException('Cannot Slew: Telescope is Parked')
-        elif not self._ascom.Tracking:
-            raise ChimeraException('Cannot Slew: Telescope is Not Tracking')
+        # elif not self._ascom.Tracking:  FIXME: Telescope should or should not be tracking to move?
+        #     raise ChimeraException('Cannot Slew: Telescope is Not Tracking')
 
         self.slewBegin(position)
         self.log.info("Telescope %s slewing to alt %3.2f and az %3.2f" % (self['ascom_id'], position.alt.D, position.az.D))
@@ -317,6 +315,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def startFan(self):
+        # FIXME: Can be checked by SupportedActions method on ASCOM
         if self['ascom_id'] in ['AstrooptikServer.Telescope']:
             if self.isFanning():
                 return True
@@ -328,6 +327,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def stopFan(self):
+        # FIXME: Can be checked by SupportedActions method on ASCOM
         if self['ascom_id'] in ['AstrooptikServer.Telescope']:
             if not self.isFanning():
                 return True
@@ -342,6 +342,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def openCover(self):
+        # FIXME: Can be checked by SupportedActions method on ASCOM
         if self['ascom_id'] in ['AstrooptikServer.Telescope']:
             if self.isOpen():
                 return True
@@ -353,6 +354,7 @@ class ASCOMTelescope (TelescopeBase):
 
     @com
     def closeCover(self):
+        # FIXME: Can be checked by SupportedActions method on ASCOM
         if self['ascom_id'] in ['AstrooptikServer.Telescope']:
             if not self.isOpen():
                 return True
@@ -362,27 +364,27 @@ class ASCOMTelescope (TelescopeBase):
         else:
             raise NotImplementedError()
 
-    # @com
-    # def moveEast(self, offset, slewRate=None):
-    #     self._ascom.Asynchronous = 0
-    #     self._ascom.Jog(offset.AS / 60.0, 'East')
-    #     self._ascom.Asynchronous = 1
-    #
-    # @com
-    # def moveWest(self, offset, slewRate=None):
-    #     self._ascom.Asynchronous = 0
-    #     self._ascom.Jog(offset.AS / 60.0, 'West')
-    #     self._ascom.Asynchronous = 1
-    #
-    # @com
-    # def moveNorth(self, offset, slewRate=None):
-    #     self._ascom.Asynchronous = 0
-    #     self._ascom.Jog(offset.AS / 60.0, 'North')
-    #     self._ascom.Asynchronous = 1
-    #
-    # @com
-    # def moveSouth(self, offset, slewRate=None):
-    #     self._ascom.Asynchronous = 0
-    #     self._ascom.Jog(offset.AS / 60.0, 'South')
-    #     self._ascom.Asynchronous = 1
-    #
+            # @com
+            # def moveEast(self, offset, slewRate=None):
+            #     self._ascom.Asynchronous = 0
+            #     self._ascom.Jog(offset.AS / 60.0, 'East')
+            #     self._ascom.Asynchronous = 1
+            #
+            # @com
+            # def moveWest(self, offset, slewRate=None):
+            #     self._ascom.Asynchronous = 0
+            #     self._ascom.Jog(offset.AS / 60.0, 'West')
+            #     self._ascom.Asynchronous = 1
+            #
+            # @com
+            # def moveNorth(self, offset, slewRate=None):
+            #     self._ascom.Asynchronous = 0
+            #     self._ascom.Jog(offset.AS / 60.0, 'North')
+            #     self._ascom.Asynchronous = 1
+            #
+            # @com
+            # def moveSouth(self, offset, slewRate=None):
+            #     self._ascom.Asynchronous = 0
+            #     self._ascom.Jog(offset.AS / 60.0, 'South')
+            #     self._ascom.Asynchronous = 1
+            #
