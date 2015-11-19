@@ -22,13 +22,9 @@ class ASCOMFocuser(FocuserBase):
     def __init__(self):
         FocuserBase.__init__(self)
 
-        self._supports = {}
 
     def __start__(self):
         self.open()
-        self._position = self.getPosition()
-        self["focuser_model"] = 'ASCOM standard focuser id %s' % self['ascom_id']
-        self["model"] = self["focuser_model"]
 
         self._supports = {FocuserFeature.TEMPERATURE_COMPENSATION: self._ascom.TempCompAvailable,
                           FocuserFeature.POSITION_FEEDBACK: True,  # TODO: Check FEEDBACK
@@ -39,6 +35,10 @@ class ASCOMFocuser(FocuserBase):
                           FocuserFeature.CONTROLLABLE_U: False,
                           FocuserFeature.CONTROLLABLE_V: False,
                           FocuserFeature.CONTROLLABLE_W: False}
+
+        self._position = self.getPosition()
+        self["focuser_model"] = 'ASCOM standard focuser id %s' % self['ascom_id']
+        self["model"] = self["focuser_model"]
 
     @lock
     def moveIn(self, n, axis=FocuserAxis.Z):
