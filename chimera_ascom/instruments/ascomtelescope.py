@@ -127,7 +127,7 @@ class ASCOMTelescope(TelescopeBase):
 
     @com
     def getPositionRaDec(self):
-        return Position.fromRaDec(self._ascom.RightAscension, self._ascom.Declination)
+        return Position.fromRaDec(self._ascom.RightAscension, self._ascom.Declination, epoch=Epoch.NOW)
 
     @com
     def getPositionAltAz(self):
