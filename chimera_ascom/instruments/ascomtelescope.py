@@ -28,7 +28,7 @@ from chimera.core.exceptions import ChimeraException
 from chimera.util.coord import Coord
 from chimera.util.position import Position, Epoch
 from chimera.instruments.telescope import TelescopeBase
-from chimera.interfaces.telescope import TelescopeStatus
+from chimera.interfaces.telescope import TelescopeStatus, TelescopePier, TelescopePierSide
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def com(func):
     return com_wrapper
 
 
-class ASCOMTelescope(TelescopeBase):
+class ASCOMTelescope(TelescopeBase, TelescopePier):
     __config__ = {"ascom_id": "ASCOM.Simulator.Telescope"}
 
     def __init__(self):
@@ -340,6 +340,14 @@ class ASCOMTelescope(TelescopeBase):
     def isOpen(self):
         return self._isOpen
 
+    def getPierSide(self):
+        if self._ascom.SideOfPier == -1:
+            return TelescopePierSide.UNKNOWN
+        elif self._ascom.SideOfPier == 0:
+            return TelescopePierSide.EAST
+        elif self._ascom.SideOfPier == 1:
+            return TelescopePierSide.WEST
+
     @com
     def openCover(self):
         # FIXME: Can be checked by SupportedActions method on ASCOM
@@ -388,3 +396,8 @@ class ASCOMTelescope(TelescopeBase):
             #     self._ascom.Jog(offset.AS / 60.0, 'South')
             #     self._ascom.Asynchronous = 1
             #
+
+    def getMetadata(self, request):
+        md = super(ASCOMTelescope, self).getMetadata(request)
+        md.append(('PIERSIDE', self.getPierSide().__str__(), 'Side-of-pier'))
+        return md
