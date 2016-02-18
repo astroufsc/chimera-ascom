@@ -101,7 +101,6 @@ class ASCOMCamera(CameraBase):
                 readoutMode = ReadoutMode()
                 vbin, hbin = [int(v) for v in binning.split('x')]
                 readoutMode.mode = i_mode
-                readoutMode.gain = self._ascom.ElectronsPerADU
                 readoutMode.width = self["ccd_width"] / hbin
                 readoutMode.height = self["ccd_height"] / vbin
                 readoutMode.pixelWidth = self._pixelWidth * hbin
