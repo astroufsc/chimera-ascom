@@ -28,7 +28,7 @@ from chimera.core.exceptions import ChimeraException
 from chimera.util.coord import Coord
 from chimera.util.position import Position, Epoch
 from chimera.instruments.telescope import TelescopeBase
-from chimera.interfaces.telescope import TelescopeStatus, TelescopePier, TelescopePierSide
+from chimera.interfaces.telescope import TelescopeStatus, TelescopePier, TelescopePierSide, TelescopeCover
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def com(func):
     return com_wrapper
 
 
-class ASCOMTelescope(TelescopeBase, TelescopePier):
+class ASCOMTelescope(TelescopeBase, TelescopeCover, TelescopePier):
     __config__ = {"ascom_id": "ASCOM.Simulator.Telescope"}
 
     def __init__(self):
@@ -348,14 +348,25 @@ class ASCOMTelescope(TelescopeBase, TelescopePier):
         elif self._ascom.SideOfPier == 1:
             return TelescopePierSide.WEST
 
+    def setPierSide(self, side):
+        if self['ascom_id'] in ['AstrooptikServer.Telescope']:
+            if side == TelescopePierSide.WEST:
+                self.log.debug('Moving telescope to WEST pierside...')
+                self._ascom.SideOfPier = 0
+                return True
+            elif side == TelescopePierSide.EAST:
+                self.log.debug('Moving telescope to EAST pierside...')
+                self._ascom.SideOfPier = 1  # can ASA having exchanged values? Pierside=1 <-> AutoSlew=EAST
+                return True
+        else:
+            raise NotImplementedError()
+
     @com
     def openCover(self):
         # FIXME: Can be checked by SupportedActions method on ASCOM
         if self['ascom_id'] in ['AstrooptikServer.Telescope']:
-            if self.isOpen():
-                return True
             self.log.debug('Opening telescope cover...')
-            self._ascom.Action('Telescope:OpenCover')
+            self._ascom.openCover()
             return True
         else:
             raise NotImplementedError()
@@ -364,10 +375,8 @@ class ASCOMTelescope(TelescopeBase, TelescopePier):
     def closeCover(self):
         # FIXME: Can be checked by SupportedActions method on ASCOM
         if self['ascom_id'] in ['AstrooptikServer.Telescope']:
-            if not self.isOpen():
-                return True
             self.log.debug('Closing telescope cover...')
-            self._ascom.Action('Telescope:CloseCover')
+            self._ascom.closeCover()
             return True
         else:
             raise NotImplementedError()
