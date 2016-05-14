@@ -200,7 +200,7 @@ class ASCOMCamera(CameraBase):
     def _readout(self, request):
         self.readoutBegin(request)
 
-        pix = np.array(self._ascom.ImageArray)
+        pix = np.transpose(np.array(self._ascom.ImageArray))
 
         (mode, binning, top, left, width, height) = self._getReadoutModeInfo(request["binning"], request["window"])
 
