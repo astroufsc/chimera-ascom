@@ -204,6 +204,8 @@ class ASCOMCamera(CameraBase):
 
         (mode, binning, top, left, width, height) = self._getReadoutModeInfo(request["binning"], request["window"])
 
+        request.headers.append(('GAIN', str(mode.gain), 'Electronic gain in photoelectrons per ADU'))
+
         proxy = self._saveImage(request, pix, {
             "frame_start_time": dt.datetime.strptime(self._ascom.LastExposureStartTime, "%Y-%m-%dT%H:%M:%S"),
             "frame_temperature": self.getTemperature(),
@@ -290,8 +292,6 @@ class ASCOMCamera(CameraBase):
 
     def getSetPoint(self):
         return self._ascom.SetCCDTemperature
-
-        # TODO: Add getMetadata() method with gain in e-/ADU.
 
 
 class InvalidExposureTime(ChimeraException):
