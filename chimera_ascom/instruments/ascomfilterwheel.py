@@ -1,6 +1,7 @@
 import logging
 import sys
 
+import time
 from chimera.core.exceptions import ChimeraException
 from chimera.interfaces.filterwheel import InvalidFilterPositionException
 from chimera.instruments.filterwheel import FilterWheelBase
@@ -19,7 +20,8 @@ else:
 class ASCOMFilterWheel(FilterWheelBase):
     __config__ = {"ascom_id": "ASCOM.Simulator.FilterWheel",
                   "ascom_setup": False,
-                  "max_connection_attempts": 3}
+                  "max_connection_attempts": 3,
+                  "change_timeout": 60}     # seconds
 
     def __init__(self):
         FilterWheelBase.__init__(self)
@@ -65,3 +67,9 @@ class ASCOMFilterWheel(FilterWheelBase):
         self.filterChange(filter, self.getFilter())
 
         self._ascom.Position = self._getFilterPosition(filter)
+
+        t0 = time.time()
+        while time.time() - t0 < self["change_timeout"]:
+            if self.getFilter() == filterName:
+                return True
+        return False
