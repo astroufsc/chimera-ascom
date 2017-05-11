@@ -79,7 +79,7 @@ class ASCOMCamera(CameraBase):
         self._supports = {CameraFeature.TEMPERATURE_CONTROL: self._ascom.CanSetCCDTemperature,
                           CameraFeature.PROGRAMMABLE_GAIN: False,
                           CameraFeature.PROGRAMMABLE_OVERSCAN: False,
-                          CameraFeature.PROGRAMMABLE_FAN: True,  # 'SetFanSpeed' in self._ascom_supported_actions,
+                          CameraFeature.PROGRAMMABLE_FAN: False,  # 'SetFanSpeed' in self._ascom_supported_actions,
                           CameraFeature.PROGRAMMABLE_LEDS: False,
                           CameraFeature.PROGRAMMABLE_BIAS_LEVEL: False}
 
