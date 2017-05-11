@@ -27,7 +27,8 @@ class ASCOMCamera(CameraBase):
                   "ascom_setup": False,
                   "max_connection_attempts": 3,
                   "ccd_width": None,
-                  "ccd_height": None}
+                  "ccd_height": None,
+                  "ignore_abort": False}
 
     def __init__(self):
         CameraBase.__init__(self)
@@ -38,7 +39,7 @@ class ASCOMCamera(CameraBase):
 
         self.open()
 
-        # self._ascom_supported_actions = list(self._ascom.SupportedActions)
+        # self.log.debug('supported actions: '+str(list(self._ascom.SupportedActions)))
         try:
             self._ascom_min_exptime = self._ascom.ExposureMin
         except AttributeError:
@@ -78,7 +79,7 @@ class ASCOMCamera(CameraBase):
         self._supports = {CameraFeature.TEMPERATURE_CONTROL: self._ascom.CanSetCCDTemperature,
                           CameraFeature.PROGRAMMABLE_GAIN: False,
                           CameraFeature.PROGRAMMABLE_OVERSCAN: False,
-                          CameraFeature.PROGRAMMABLE_FAN: False,  # 'SetFanSpeed' in self._ascom_supported_actions,
+                          CameraFeature.PROGRAMMABLE_FAN: True,  # 'SetFanSpeed' in self._ascom_supported_actions,
                           CameraFeature.PROGRAMMABLE_LEDS: False,
                           CameraFeature.PROGRAMMABLE_BIAS_LEVEL: False}
 
@@ -122,6 +123,7 @@ class ASCOMCamera(CameraBase):
 
     def close(self):
         self._ascom.Connected = False
+        self._ascom.Dispose()
 
     def open(self):
         '''
@@ -191,9 +193,10 @@ class ASCOMCamera(CameraBase):
         while 5 > self._ascom.CameraState > 0:
             # [ABORT POINT]
             if self.abort.isSet():
-                self._ascom.StopExposure()
                 status = CameraStatus.ABORTED
-                break
+                if not self["ignore_abort"]:
+                    self._ascom.StopExposure()
+                    break
 
         self.exposeComplete(request, status)
 
