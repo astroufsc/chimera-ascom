@@ -32,12 +32,12 @@ class ASCOMCamera(CameraBase):
 
     def __init__(self):
         CameraBase.__init__(self)
-
         self._n_attempts = 0
 
     def __start__(self):
 
         self.open()
+        self.log.debug("Ingore type" + str(type(self["ignore_abort"])) + str(self["ignore_abort"]))
 
         # self.log.debug('supported actions: '+str(list(self._ascom.SupportedActions)))
         try:
@@ -193,15 +193,24 @@ class ASCOMCamera(CameraBase):
         while 5 > self._ascom.CameraState > 0:
             # [ABORT POINT]
             if self.abort.isSet():
-                status = CameraStatus.ABORTED
                 if not self["ignore_abort"]:
+                    status = CameraStatus.ABORTED
                     self._ascom.StopExposure()
                     break
+
+        if self.abort.isSet() and self["ignore_abort"]:
+            self._readout(request)
 
         self.exposeComplete(request, status)
 
     def _readout(self, request):
         self.readoutBegin(request)
+
+        # [ABORT POINT]
+        if self.abort.isSet():
+            if not self["ignore_abort"]:
+                self.readoutComplete(None, CameraStatus.ABORTED)
+                return None
 
         pix = np.transpose(np.array(self._ascom.ImageArray))
 
@@ -214,10 +223,6 @@ class ASCOMCamera(CameraBase):
             "frame_temperature": self.getTemperature(),
             "binning_factor": self._binning_factors[binning]})
 
-        # [ABORT POINT]
-        if self.abort.isSet():
-            self.readoutComplete(None, CameraStatus.ABORTED)
-            return None
 
         self.readoutComplete(proxy, CameraStatus.OK)
         return proxy
